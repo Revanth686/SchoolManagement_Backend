@@ -25,7 +25,6 @@ class School {
 
   //get schools operation
   async listSchools(latitude, longitude, limit = 100) {
-    log(`list called`);
     try {
       const [rows] = await this.db.execute(
         "SELECT id, name, address, latitude, longitude FROM schools",

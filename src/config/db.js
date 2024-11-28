@@ -5,7 +5,7 @@ dotenv.config();
 
 const log = debug("app:database");
 
-//using connection pool to handle connection
+//using connection pool to handle db connection
 const pool = mysql.createPool({
   host: process.env.DBHOST || "localhost",
   user: process.env.DBUSER || "root",

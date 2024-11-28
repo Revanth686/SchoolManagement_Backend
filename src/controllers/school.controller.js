@@ -2,6 +2,7 @@ import debug from "debug";
 import School from "../models/school.js";
 import { validatePostParams, validateGetParams } from "../utils/validator.js";
 import { getDb } from "../config/db.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 let log = debug("app:school-controller");
 
@@ -26,7 +27,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 //controller handling add school endpoint
-export const addSchool = async (req, res) => {
+export const addSchool = asyncHandler(async (req, res) => {
   try {
     const validation = validatePostParams(req.body);
     if (!validation.isValid) {
@@ -44,7 +45,6 @@ export const addSchool = async (req, res) => {
       longitude,
     });
     log(`School added with ID: ${schoolId}`);
-    //TODO: apiresp
     res.status(201).json({
       success: true,
       data: { id: schoolId, name, address, latitude, longitude },
@@ -56,10 +56,10 @@ export const addSchool = async (req, res) => {
       error: "Error adding school",
     });
   }
-};
+});
 
 //controller handling list schools endpoint
-export const listSchools = async (req, res) => {
+export const listSchools = asyncHandler(async (req, res) => {
   try {
     const validation = validateGetParams(req.query);
     if (!validation.isValid) {
@@ -96,9 +96,9 @@ export const listSchools = async (req, res) => {
       error: "Error fetching schools",
     });
   }
-};
+});
 
-export const healthController = async (req, res) => {
+export const healthController = asyncHandler(async (_, res) => {
   try {
     await getDb().query("SELECT 1");
 
@@ -116,4 +116,4 @@ export const healthController = async (req, res) => {
       timestamp: new Date().toISOString(),
     });
   }
-};
+});
