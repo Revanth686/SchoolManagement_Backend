@@ -5,7 +5,7 @@ info:
   description: API for adding and fetching a list of schools
 
 paths:
-  /addSchool:
+  /api/v3/app/addSchool:
     post:
       summary: Add a new school
       tags: [Schools]
@@ -46,7 +46,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServerError"
 
-  /listSchools:
+  /api/v3/app/listSchools:
     get:
       summary: get list of schools sorted by proximity
       tags: [Schools]
