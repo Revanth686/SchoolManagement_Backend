@@ -93,3 +93,13 @@ used `debug` library with the following namespaces:
 - `app:database`: Database configuration
 - `app:school-controller`: controller file
 - `app:school-model`: operations on db
+
+## Future Scope
+
+- **Redis Caching**: Redis for caching frequently accessed data
+- **Query Optimization**: Database indexing and query optimization techniques
+- **CAPTCHA Integration**: CAPTCHA verification in frontend to prevent DDOS attacks
+- **JWT Authentication**: Role-based access control with JWT tokens
+- **API Key Management**: API key-based authentication for external services
+- **Batch Operations**: Bulk school data import/export
+- **Real-time Updates**: WebSocket integration for live data updates
