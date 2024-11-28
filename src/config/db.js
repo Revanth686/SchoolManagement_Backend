@@ -22,17 +22,15 @@ export const initDatabase = async () => {
     const connection = await pool.getConnection();
     log("Database connected successfully");
 
-    //TODO: remv created_at field
-
     // creating school table iff doesnt yet exists
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS schools (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
         address VARCHAR(255) NOT NULL,
-        location POINT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        SPATIAL INDEX idx_location (location)
+        latitude DECIMAL(10, 8) NOT NULL,
+        longitude DECIMAL(11, 8) NOT NULL,
+        INDEX idx_location (latitude, longitude)
       )
     `);
 

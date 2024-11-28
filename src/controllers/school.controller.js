@@ -11,6 +11,21 @@ export const initSchoolService = () => {
   log(`school service initialised`);
 };
 
+//using standard haversine formula to calculate distance
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3;
+  const phy1 = (lat1 * Math.PI) / 180;
+  const phy2 = (lat2 * Math.PI) / 180;
+  const dPhy = ((lat2 - lat1) * Math.PI) / 180;
+  const dLam = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dPhy / 2) * Math.sin(dPhy / 2) +
+    Math.cos(phy1) * Math.cos(phy2) * Math.sin(dLam / 2) * Math.sin(dLam / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+//controller handling add school endpoint
 export const addSchool = async (req, res) => {
   try {
     const validation = validatePostParams(req.body);
@@ -28,23 +43,22 @@ export const addSchool = async (req, res) => {
       latitude,
       longitude,
     });
-
     log(`School added with ID: ${schoolId}`);
-
     //TODO: apiresp
     res.status(201).json({
       success: true,
       data: { id: schoolId, name, address, latitude, longitude },
     });
   } catch (error) {
-    log("Error in adding school:", error);
+    log("Error adding school:", error);
     res.status(500).json({
       success: false,
-      error: "Internal server error",
+      error: "Error adding school",
     });
   }
 };
 
+//controller handling list schools endpoint
 export const listSchools = async (req, res) => {
   try {
     const validation = validateGetParams(req.query);
@@ -59,16 +73,27 @@ export const listSchools = async (req, res) => {
     const userLon = parseFloat(longitude);
 
     const schools = await schoolService.listSchools(userLat, userLon);
+    //calculating distances and sorting
+    const sortedSchools = schools.map((school) => ({
+      ...school,
+      distance: calculateDistance(
+        userLat,
+        userLon,
+        school.latitude,
+        school.longitude,
+      ),
+    }));
+    sortedSchools.sort((a, b) => a.distance - b.distance);
 
     res.json({
       success: true,
-      data: schools,
+      data: sortedSchools,
     });
   } catch (error) {
     log("Error in getting schools:", error);
     res.status(500).json({
       success: false,
-      error: "Internal server error",
+      error: "Error fetching schools",
     });
   }
 };

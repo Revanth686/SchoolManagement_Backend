@@ -13,8 +13,8 @@ class School {
   async create({ name, address, latitude, longitude }) {
     try {
       const [result] = await this.db.execute(
-        "INSERT INTO schools (name, address, location) VALUES (?, ?, ST_GeomFromText(?))",
-        [name, address, createPoint(latitude, longitude)],
+        "INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)",
+        [name, address, latitude, longitude], //to prevent SQL injections
       );
       return result.insertId;
     } catch (error) {
@@ -27,38 +27,18 @@ class School {
   async listSchools(latitude, longitude, limit = 100) {
     log(`list called`);
     try {
-      let query = `
-        SELECT 
-          id, 
-          name, 
-          address, 
-          ST_AsText(location) as location_text,
-          ST_Distance_Sphere(location, ST_GeomFromText(?)) as distance
-        FROM schools
-      `;
+      const [rows] = await this.db.execute(
+        "SELECT id, name, address, latitude, longitude FROM schools",
+        [],
+      );
 
-      const params = [createPoint(latitude, longitude)];
-
-      query += " ORDER BY distance LIMIT ?";
-      params.push(limit); //100 items per response
-
-      const [rows] = await this.db.execute(query, params);
-
-      return rows.map((row) => {
-        const locationMatch = row.location_text.match(
-          /POINT\(([-\d.]+) ([-\d.]+)\)/,
-        );
-        const [, lon, lat] = locationMatch;
-
-        return {
-          id: row.id,
-          name: row.name,
-          address: row.address,
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon),
-          distance: row.distance, // distance in meters
-        };
-      });
+      return rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        address: row.address,
+        latitude: parseFloat(row.latitude),
+        longitude: parseFloat(row.longitude),
+      }));
     } catch (error) {
       log("Error fetching nearby schools:", error);
       throw error;
